@@ -1,0 +1,86 @@
+openapi: 3.0.0
+info:
+  title: Billing API
+  version: 1.0.0
+
+paths:
+  /billing/create-checkout:
+    post:
+      summary: Create Stripe checkout session
+      description: >
+        Create a Stripe Checkout session for subscription purchase.
+        Returns a redirect URL for the parent to complete payment.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                planId:
+                  type: string
+                  description: Optional plan ID (default plan used if omitted)
+            example:
+              planId: "monthly_basic"
+      responses:
+        "200":
+          description: Checkout session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: Stripe Checkout URL
+              example:
+                url: "https://checkout.stripe.com/pay/cs_test_123"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              example:
+                error: "Unable to create checkout session"
+
+  /billing/webhook:
+    post:
+      summary: Stripe webhook endpoint
+      description: >
+        Receives Stripe webhook events such as subscription creation,
+        payment failures, and cancellations. Updates parent subscription status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Stripe event payload
+            example:
+              id: "evt_123"
+              type: "checkout.session.completed"
+              data:
+                object:
+                  id: "cs_test_123"
+                  customer: "cus_ABC123"
+      responses:
+        "200":
+          description: Webhook processed successfully
+          content:
+            application/json:
+              example:
+                received: true
+        "400":
+          description: Invalid signature or payload
+          content:
+            application/json:
+              example:
+                error: "Invalid webhook signature"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
