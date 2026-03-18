@@ -1,0 +1,41 @@
+  /auth/verify:
+    get:
+      summary: Verify Supabase JWT
+      description: >
+        Validate the Supabase Auth JWT sent from the frontend.
+        Returns user information if the token is valid.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Valid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  userId:
+                    type: string
+                  email:
+                    type: string
+              example:
+                valid: true
+                userId: "parent_123"
+                email: "parent@example.com"
+
+        "401":
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  message:
+                    type: string
+              example:
+                valid: false
+                message: "Invalid or expired token"
