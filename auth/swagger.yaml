@@ -1,7 +1,10 @@
- openapi: 3.0.0
+ oopenapi: 3.0.0
  info:
-  title: Auth API
+  title: Children API
   version: 1.0.0
+
+ paths:
+
 
  paths:
   /auth/verify:
