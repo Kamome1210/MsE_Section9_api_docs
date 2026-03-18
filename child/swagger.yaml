@@ -1,0 +1,166 @@
+ openapi: 3.0.0
+ info:
+  title: Auth API
+  version: 1.0.0
+
+ paths:
+  /children:
+    post:
+         /children:
+    post:
+      summary: Create child profile
+      description: >
+        Create a new child profile under the authenticated parent.
+        The parent is identified via Supabase JWT.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, age, avatar, hobbies]
+              properties:
+                name:
+                  type: string
+                age:
+                  type: integer
+                avatar:
+                  type: string
+                hobbies:
+                  type: array
+                  items:
+                    type: string
+            example:
+              name: "Hana"
+              age: 8
+              avatar: "cat_01"
+              hobbies: ["pokemon", "minecraft"]
+      responses:
+        "201":
+          description: Child profile created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChildProfile"
+              example:
+                id: "child_001"
+                parentId: "parent_123"
+                name: "Hana"
+                age: 8
+                avatar: "cat_01"
+                hobbies: ["pokemon", "minecraft"]
+
+    get:
+           get:
+           summary: Get all children for parent
+           description: >
+           Returns all child profiles associated with the authenticated parent.
+           security:
+           - bearerAuth: []
+           responses:
+           "200":
+           description: List of children
+           content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChildProfile"
+              example:
+                - id: "child_001"
+                  parentId: "parent_123"
+                  name: "Hana"
+                  age: 8
+                  avatar: "cat_01"
+                  hobbies: ["pokemon"]
+                - id: "child_002"
+                  parentId: "parent_123"
+                  name: "Ken"
+                  age: 10
+                  avatar: "dog_02"
+                  hobbies: ["anime"]
+
+
+  /children/{childId}:
+    patch:
+        /children/{childId}:
+    patch:
+      summary: Update child profile
+      description: >
+        Update fields of a child profile. Only fields included in the request body will be updated.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the child to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                age:
+                  type: integer
+                avatar:
+                  type: string
+                hobbies:
+                  type: array
+                  items:
+                    type: string
+            example:
+              age: 9
+              hobbies: ["pokemon", "anime"]
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated:
+                    type: boolean
+              example:
+                updated: true
+        "404":
+          description: Child not found
+          content:
+            application/json:
+              example:
+                error: "Child not found"
+
+
+ components:
+  schemas:
+    ChildProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        parentId:
+          type: string
+        name:
+          type: string
+        age:
+          type: integer
+        avatar:
+          type: string
+        hobbies:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
