@@ -1,0 +1,96 @@
+openapi: 3.0.0
+info:
+  title: Matching API
+  version: 1.0.0
+
+paths:
+  /matching/enqueue:
+    post:
+      summary: Enqueue child to matching queue
+      description: >
+        Add the child to the Redis matching queue.
+        The backend will attempt to match with another child based on hobby tags and availability.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [childId]
+              properties:
+                childId:
+                  type: string
+                  description: ID of the child to enqueue
+            example:
+              childId: "child_001"
+      responses:
+        "200":
+          description: Child added to queue
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+              example:
+                status: "waiting"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              example:
+                error: "Child already in queue"
+
+  /matching/status/{childId}:
+    get:
+      summary: Get matching status
+      description: >
+        Check whether the child is still waiting or has been matched.
+        If matched, the frontend should call /matching/result to retrieve partner info.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Child ID to check
+      responses:
+        "200":
+          description: Matching status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: ["waiting", "matched"]
+                  partnerFound:
+                    type: boolean
+              examples:
+                waiting:
+                  value:
+                    status: "waiting"
+                    partnerFound: false
+                matched:
+                  value:
+                    status: "matched"
+                    partnerFound: true
+        "404":
+          description: Child not found in queue
+          content:
+            application/json:
+              example:
+                error: "Child not found"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
