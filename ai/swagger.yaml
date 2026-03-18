@@ -1,0 +1,117 @@
+openapi: 3.0.0
+info:
+  title: AI API
+  version: 1.0.0
+
+paths:
+  /ai/moderate-text:
+    post:
+      summary: Real-time text moderation
+      description: >
+        Validate user text using OpenAI Moderation API.
+        Returns whether the text is flagged and which categories were triggered.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+                  description: Text to be checked
+            example:
+              text: "I will kill you"
+      responses:
+        "200":
+          description: Moderation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flagged:
+                    type: boolean
+                  categories:
+                    type: array
+                    items:
+                      type: string
+              example:
+                flagged: true
+                categories: ["violence", "harassment"]
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              example:
+                error: "Missing text field"
+
+  /ai/call-summary/{callId}:
+    get:
+      summary: Get AI call summary
+      description: >
+        Retrieve the AI-generated summary of a completed call.
+        The summary includes Whisper transcription, moderation results,
+        and a parent-friendly conversation summary.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: callId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the call session
+      responses:
+        "200":
+          description: Summary retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallSummary"
+              example:
+                callId: "call_123"
+                childId: "child_001"
+                partnerId: "child_999"
+                summary: "Kids talked about Minecraft and shared favorite characters."
+                flagged: false
+                flaggedCategories: []
+                createdAt: "2024-01-01T10:00:00Z"
+        "404":
+          description: Summary not ready or call not found
+          content:
+            application/json:
+              example:
+                error: "Summary not found"
+
+components:
+  schemas:
+    CallSummary:
+      type: object
+      properties:
+        callId:
+          type: string
+        childId:
+          type: string
+        partnerId:
+          type: string
+        summary:
+          type: string
+        flagged:
+          type: boolean
+        flaggedCategories:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
