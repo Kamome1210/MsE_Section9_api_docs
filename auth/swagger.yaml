@@ -1,12 +1,9 @@
- oopenapi: 3.0.0
- info:
+openapi: 3.0.0
+info:
   title: Auth API
   version: 1.0.0
 
- paths:
-
-
- paths:
+paths:
   /auth/verify:
     get:
       summary: Verify Supabase JWT
@@ -48,3 +45,11 @@
               example:
                 valid: false
                 message: "Invalid or expired token"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+

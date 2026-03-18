@@ -1,12 +1,10 @@
- openapi: 3.0.0
- info:
+openapi: 3.0.0
+info:
   title: Children API
   version: 1.0.0
 
- paths:
+paths:
   /children:
-    post:
-         /children:
     post:
       summary: Create child profile
       description: >
@@ -53,16 +51,15 @@
                 hobbies: ["pokemon", "minecraft"]
 
     get:
-           get:
-           summary: Get all children for parent
-           description: >
-           Returns all child profiles associated with the authenticated parent.
-           security:
-           - bearerAuth: []
-           responses:
-           "200":
-           description: List of children
-           content:
+      summary: Get all children for parent
+      description: >
+        Returns all child profiles associated with the authenticated parent.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of children
+          content:
             application/json:
               schema:
                 type: array
@@ -82,10 +79,7 @@
                   avatar: "dog_02"
                   hobbies: ["anime"]
 
-
   /children/{childId}:
-    patch:
-        /children/{childId}:
     patch:
       summary: Update child profile
       description: >
@@ -138,8 +132,7 @@
               example:
                 error: "Child not found"
 
-
- components:
+components:
   schemas:
     ChildProfile:
       type: object
