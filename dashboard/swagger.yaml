@@ -1,0 +1,144 @@
+openapi: 3.0.0
+info:
+  title: Dashboard API
+  version: 1.0.0
+
+paths:
+  /dashboard/calls:
+    get:
+      summary: Get call history for parent
+      description: >
+        Returns a list of past calls for the authenticated parent.
+        Includes summary, flags, and timestamps.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Call history list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CallSummary"
+              example:
+                - callId: "call_123"
+                  childId: "child_001"
+                  partnerId: "child_999"
+                  summary: "Kids talked about Minecraft."
+                  flagged: false
+                  flaggedCategories: []
+                  createdAt: "2024-01-01T10:00:00Z"
+                - callId: "call_124"
+                  childId: "child_001"
+                  partnerId: "child_888"
+                  summary: "Some inappropriate language detected."
+                  flagged: true
+                  flaggedCategories: ["harassment"]
+                  createdAt: "2024-01-02T11:00:00Z"
+
+  /dashboard/calls/{callId}:
+    get:
+      summary: Get detailed call summary
+      description: >
+        Retrieve the full AI-generated summary and moderation results
+        for a specific call session.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: callId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the call session
+      responses:
+        "200":
+          description: Detailed call summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CallSummary"
+              example:
+                callId: "call_123"
+                childId: "child_001"
+                partnerId: "child_999"
+                summary: "Kids talked about Minecraft and shared favorite characters."
+                flagged: false
+                flaggedCategories: []
+                createdAt: "2024-01-01T10:00:00Z"
+        "404":
+          description: Call summary not found
+          content:
+            application/json:
+              example:
+                error: "Call summary not found"
+
+  /dashboard/force-end:
+    post:
+      summary: Force end child's call
+      description: >
+        Allows a parent to forcibly end an ongoing call for safety reasons.
+        The backend will disconnect the child from the LiveKit/Agora room.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [childId]
+              properties:
+                childId:
+                  type: string
+                  description: ID of the child to disconnect
+            example:
+              childId: "child_001"
+      responses:
+        "200":
+          description: Call forcibly ended
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ended:
+                    type: boolean
+              example:
+                ended: true
+        "404":
+          description: Child not currently in a call
+          content:
+            application/json:
+              example:
+                error: "Child is not in an active call"
+
+components:
+  schemas:
+    CallSummary:
+      type: object
+      properties:
+        callId:
+          type: string
+        childId:
+          type: string
+        partnerId:
+          type: string
+        summary:
+          type: string
+        flagged:
+          type: boolean
+        flaggedCategories:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
