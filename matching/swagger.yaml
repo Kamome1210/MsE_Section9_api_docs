@@ -88,9 +88,69 @@ paths:
               example:
                 error: "Child not found"
 
+  /matching/result/{childId}:
+    get:
+      summary: Get match result (room + partner info)
+      description: >
+        After a match is found, retrieve the partner's profile and the LiveKit room ID.
+        This endpoint finalizes the match and removes both children from the queue.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: childId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Child ID to retrieve match result for
+      responses:
+        "200":
+          description: Match result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchResult"
+              example:
+                roomId: "room_abc123"
+                partner:
+                  childId: "child_999"
+                  name: "Emma"
+                  age: 9
+                  avatar: "rabbit_03"
+                  hobbies: ["minecraft", "anime"]
+        "404":
+          description: No match found yet
+          content:
+            application/json:
+              example:
+                error: "Match not found"
+
 components:
+  schemas:
+    MatchResult:
+      type: object
+      properties:
+        roomId:
+          type: string
+        partner:
+          type: object
+          properties:
+            childId:
+              type: string
+            name:
+              type: string
+            age:
+              type: integer
+            avatar:
+              type: string
+            hobbies:
+              type: array
+              items:
+                type: string
+
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+

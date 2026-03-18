@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  title: Call API
+  version: 1.0.0
+
+paths:
+  /call/token:
+    post:
+      summary: Issue Agora token
+      description: >
+        Generate an Agora RTC token for the child to join a video/audio channel.
+        The backend signs the token using Agora App ID and App Certificate.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [roomId, childId]
+              properties:
+                roomId:
+                  type: string
+                childId:
+                  type: string
+            example:
+              roomId: "room_abc123"
+              childId: "child_001"
+      responses:
+        "200":
+          description: Token issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  appId:
+                    type: string
+                  roomId:
+                    type: string
+              example:
+                token: "agora_token_XXXX"
+                appId: "YOUR_AGORA_APP_ID"
+                roomId: "room_abc123"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              example:
+                error: "Missing roomId or childId"
+
+  /call/end:
+    post:
+      summary: End call (recording + AI summary for Agora)
+      description: >
+        End the Agora call, finalize cloud recording, and trigger Whisper transcription
+        followed by Moderation API and AI summary generation.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [callId, roomId]
+              properties:
+                callId:
+                  type: string
+                roomId:
+                  type: string
+            example:
+              callId: "call_123"
+              roomId: "room_abc123"
+      responses:
+        "200":
+          description: Call ended and summary processing started
+          content:
+            application/json:
+              example:
+                ended: true
+                summaryGenerated: true
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
