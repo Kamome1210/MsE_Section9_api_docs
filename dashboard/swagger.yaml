@@ -74,45 +74,7 @@ paths:
               example:
                 error: "Call summary not found"
 
-  /dashboard/force-end:
-    post:
-      summary: Force end child's call
-      description: >
-        Allows a parent to forcibly end an ongoing call for safety reasons.
-        The backend will disconnect the child from the LiveKit/Agora room.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [childId]
-              properties:
-                childId:
-                  type: string
-                  description: ID of the child to disconnect
-            example:
-              childId: "child_001"
-      responses:
-        "200":
-          description: Call forcibly ended
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ended:
-                    type: boolean
-              example:
-                ended: true
-        "404":
-          description: Child not currently in a call
-          content:
-            application/json:
-              example:
-                error: "Child is not in an active call"
+  
 
 components:
   schemas:
