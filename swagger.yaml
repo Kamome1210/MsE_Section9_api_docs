@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: >
     MVP API for Kids Language Exchange App.
-    Backend: Hono/Express + Supabase + Redis + Stripe + LiveKit + OpenAI.
+    Backend: Hono/Express + Supabase + Redis + Stripe + Agora + OpenAI.
 
 servers:
   - url: https://api.example.com
@@ -41,7 +41,7 @@ components:
     MatchResult:
       type: object
       properties:
-        roomId: { type: string }
+        channelName: { type: string }
         partner:
           type: object
           properties:
@@ -195,7 +195,7 @@ paths:
 
   /matching/result/{childId}:
     get:
-      summary: Get match result (room + partner info)
+      summary: Get match result (channel + partner info)
       security:
         - bearerAuth: []
       parameters:
@@ -213,12 +213,12 @@ paths:
 
 
   ############################################
-  # 4. 通話（LiveKit）
+  # 4. 通話（Agora）
   ############################################
 
   /call/token:
     post:
-      summary: Issue LiveKit token
+      summary: Issue Agora RTC token
       security:
         - bearerAuth: []
       requestBody:
@@ -227,7 +227,7 @@ paths:
             schema:
               type: object
               properties:
-                roomId: { type: string }
+                channelName: { type: string }
                 childId: { type: string }
       responses:
         "200":
@@ -237,7 +237,12 @@ paths:
               schema:
                 type: object
                 properties:
-                  token: { type: string }
+                  rtcToken: { type: string }
+                  appId: { type: string }
+                  channelName: { type: string }
+                  uid:  { type: integer }
+      "400":
+         description: Invalid request
 
   /call/end:
     post:
@@ -251,7 +256,7 @@ paths:
               type: object
               properties:
                 callId: { type: string }
-                roomId: { type: string }
+                channelName: { type: string }
       responses:
         "200":
           description: Call ended

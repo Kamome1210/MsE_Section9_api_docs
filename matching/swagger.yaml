@@ -90,10 +90,9 @@ paths:
 
   /matching/result/{childId}:
     get:
-      summary: Get match result (room + partner info)
+      summary: Get match result (channel name + partner info)
       description: >
-        After a match is found, retrieve the partner's profile and the LiveKit room ID.
-        This endpoint finalizes the match and removes both children from the queue.
+       After a match is found, retrieve the partner's profile and the Agora channel name.
       security:
         - bearerAuth: []
       parameters:
