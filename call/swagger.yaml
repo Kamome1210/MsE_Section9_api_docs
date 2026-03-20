@@ -4,9 +4,9 @@ info:
   version: 1.0.0
 
 paths:
-  /call/token:
+    /call/token:
     post:
-      summary: Issue Agora token
+      summary: Issue Agora RTC token
       description: >
         Generate an Agora RTC token for the child to join a video/audio channel.
         The backend signs the token using Agora App ID and App Certificate.
@@ -18,46 +18,56 @@ paths:
           application/json:
             schema:
               type: object
-              required: [roomId, childId]
+              required: [channelName, childId]
               properties:
-                roomId:
+                channelName:
                   type: string
+                  description: Agora channel name (room ID)
                 childId:
                   type: string
+                  description: Child ID joining the call
             example:
-              roomId: "room_abc123"
+              channelName: "room_abc123"
               childId: "child_001"
       responses:
         "200":
-          description: Token issued
+          description: Agora RTC token issued
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
+                  rtcToken:
                     type: string
+                    description: Agora RTC token
                   appId:
                     type: string
-                  roomId:
+                    description: Agora App ID
+                  channelName:
                     type: string
+                    description: Channel name (room ID)
+                  uid:
+                    type: integer
+                    description: Agora UID assigned to the child
               example:
-                token: "agora_token_XXXX"
+                rtcToken: "agora_rtc_token_xxxx"
                 appId: "YOUR_AGORA_APP_ID"
-                roomId: "room_abc123"
+                channelName: "room_abc123"
+                uid: 12345
         "400":
           description: Invalid request
           content:
             application/json:
               example:
-                error: "Missing roomId or childId"
+                error: "Missing channelName or childId"
 
-  /call/end:
+
+    /call/end:
     post:
-      summary: End call (recording + AI summary for Agora)
+      summary: End call (Agora recording + AI summary)
       description: >
-        End the Agora call, finalize cloud recording, and trigger Whisper transcription
-        followed by Moderation API and AI summary generation.
+        End the Agora call, finalize Agora Cloud Recording,
+        then run Whisper transcription, Moderation, and AI summary generation.
       security:
         - bearerAuth: []
       requestBody:
@@ -66,15 +76,15 @@ paths:
           application/json:
             schema:
               type: object
-              required: [callId, roomId]
+              required: [callId, channelName]
               properties:
                 callId:
                   type: string
-                roomId:
+                channelName:
                   type: string
             example:
               callId: "call_123"
-              roomId: "room_abc123"
+              channelName: "room_abc123"
       responses:
         "200":
           description: Call ended and summary processing started
@@ -83,6 +93,7 @@ paths:
               example:
                 ended: true
                 summaryGenerated: true
+
 
 components:
   securitySchemes:
